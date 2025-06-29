@@ -1,7 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Имаджинариум - Главная</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-<h1>Ну чтож за все это время я разобрался как сделать эту ебанину)</h1>
+    <div class="container">
+        <h1>Имаджинариум</h1>
+        
+        <div class="menu">
+            <button id="createRoomBtn">Создать комнату</button>
+            <div class="or-divider">или</div>
+            <div class="join-room">
+                <input type="text" id="roomCodeInput" placeholder="Введите код комнаты" maxlength="6">
+                <button id="joinRoomBtn">Присоединиться</button>
+            </div>
+        </div>
+        
+        <div class="rules">
+            <h2>Правила игры</h2>
+            <p>1. Каждый игрок получает 6 карт с абстрактными изображениями.</p>
+            <p>2. Ходящий игрок загадывает ассоциацию к одной из своих карт.</p>
+            <p>3. Остальные игроки выбирают из своих карт наиболее подходящую под эту ассоциацию.</p>
+            <p>4. Все карты перемешиваются и выкладываются на стол.</p>
+            <p>5. Игроки голосуют, какая карта была загадана ходящим.</p>
+            <p>6. Очки начисляются за угаданные карты и за угадывание загаданной карты.</p>
+        </div>
+    </div>
 
+    <script src="script.js"></script>
 </body>
 </html>
