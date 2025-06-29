@@ -247,8 +247,8 @@ input {
 }
 
 .card {
-    width: 100px;
-    height: 150px;
+    width: 200px;
+    height: 250px;
     margin: 5px;
     cursor: pointer;
     border: 2px solid transparent;
