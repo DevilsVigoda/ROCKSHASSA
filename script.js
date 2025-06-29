@@ -94,7 +94,7 @@ async function loadRoomState() {
     }
 }
 
-function saveRoomState() {
+async function saveRoomState() {
     if (!roomCode) return;
 
     const url = `https://api.github.com/repos/ ${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
