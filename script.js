@@ -65,7 +65,7 @@ function connectToRoom() {
     updateGameUI();
     
     // Запускаем "прослушку" изменений
-    setInterval(loadRoomState, 1000);
+	setInterval(loadRoomState, 2000);
 }
 
 function loadRoomState() {
@@ -440,12 +440,10 @@ function handleCardHover(event) {
 function renderPlayerCards(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-    selectedCardId = null;
-    lastSelectedCardElement = null;
     
     const player = gameState.players.find(p => p.id === playerId);
     if (!player) return;
-    
+
     player.cards.forEach(card => {
         const cardEl = document.createElement('div');
         cardEl.className = 'card';
@@ -454,8 +452,13 @@ function renderPlayerCards(containerId) {
         const img = document.createElement('div');
         img.className = 'card-img';
         img.textContent = `🖼️ ${card.id}`;
-        
         cardEl.appendChild(img);
+
+        // Восстанавливаем выделение, если карта была выбрана ранее
+        if (card.id === selectedCardId) {
+            cardEl.classList.add('selected');
+        }
+
         cardEl.addEventListener('click', () => selectCard(cardEl, card.id));
         container.appendChild(cardEl);
     });
@@ -465,19 +468,22 @@ function renderPlayerCards(containerId) {
 function renderTableCards() {
     const container = document.getElementById('tableCards');
     container.innerHTML = '';
-    selectedCardId = null;
-    lastSelectedCardElement = null;
-    
+
     gameState.currentRound.cards.forEach(card => {
         const cardEl = document.createElement('div');
         cardEl.className = 'card';
         cardEl.dataset.cardId = card.cardId;
-        
+
         const img = document.createElement('div');
         img.className = 'card-img';
         img.textContent = `🖼️ ${card.cardId}`;
-        
         cardEl.appendChild(img);
+
+        // Восстанавливаем выделение, если карта была выбрана ранее
+        if (card.cardId === selectedCardId) {
+            cardEl.classList.add('selected');
+        }
+
         cardEl.addEventListener('click', () => selectCard(cardEl, card.cardId));
         container.appendChild(cardEl);
     });
