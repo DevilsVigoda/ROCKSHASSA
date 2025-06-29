@@ -6,6 +6,9 @@ let playerName;
 let gameState = {};
 let selectedCardId = null;
 let lastSelectedCardElement = null;
+const GITHUB_TOKEN = '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'; // <-- Сюда вставь твой токен
+const REPO_OWNER = 'DevislVigoda';
+const REPO_NAME = 'imaginarium'; // название твоего репозитория
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
@@ -60,24 +63,73 @@ function connectToRoom() {
     setInterval(loadRoomState, 1000);
 }
 
-function loadRoomState() {
-    const roomData = localStorage.getItem(`imaginarium_room_${roomCode}`);
-    if (roomData) {
-        const newState = JSON.parse(roomData);
-        // Проверяем, изменилось ли состояние
-        if (JSON.stringify(gameState) !== JSON.stringify(newState)) {
-            gameState = newState;
-            updateGameUI();
+async function loadRoomState() {
+    if (!roomCode) return;
+
+    const url = `https://api.github.com/repos/ ${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${GITHUB_TOKEN}`,
+                Accept: "application/vnd.github.v3+json"
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const decodedContent = atob(data.content);
+            const newState = JSON.parse(decodedContent);
+
+            if (JSON.stringify(gameState) !== JSON.stringify(newState)) {
+                gameState = newState;
+                updateGameUI();
+            }
+        } else {
+            alert('Комната не найдена');
+            window.location.href = 'index.html';
         }
-    } else {
-        alert('Комната не найдена или была удалена');
-        window.location.href = 'index.html';
+    } catch (err) {
+        console.error("Ошибка загрузки:", err);
     }
 }
 
 function saveRoomState() {
-    localStorage.setItem(`imaginarium_room_${roomCode}`, JSON.stringify(gameState));
-    localStorage.setItem(`imaginarium_update_${roomCode}`, Date.now().toString());
+    if (!roomCode) return;
+
+    const url = `https://api.github.com/repos/ ${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(gameState, null, 2))));
+
+    const data = {
+        message: "Update room state",
+        content: content,
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${GITHUB_TOKEN}`,
+                Accept: "application/vnd.github.v3+json"
+            }
+        });
+
+        if (response.ok) {
+            const json = await response.json();
+            data.sha = json.sha;
+        }
+
+        await fetch(url, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${GITHUB_TOKEN}`,
+                Accept: "application/vnd.github.v3+json"
+            },
+            body: JSON.stringify(data)
+        });
+    } catch (err) {
+        console.error("Ошибка сохранения:", err);
+    }
 	location.reload();
 }
 
