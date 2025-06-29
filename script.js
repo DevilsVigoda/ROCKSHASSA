@@ -84,7 +84,7 @@ function connectToRoom() {
 async function loadRoomState() {
     if (!roomCode) return;
 
-    const url = `https://api.github.com/repos/ ${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
+   const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
 
     try {
         const response = await fetch(url, {
@@ -115,7 +115,7 @@ async function loadRoomState() {
 async function saveRoomState() {
     if (!roomCode || !GITHUB_TOKEN) return;
 
-    const url = `https://api.github.com/repos/ ${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(gameState, null, 2))));
     const data = {
         message: "Update room state",
@@ -159,26 +159,26 @@ function createRoom() {
     playerId = generatePlayerId();
 
     const deck = generateDeck();
-    gameState = {
-        phase: 'waiting',
-        players: [{
-            id: playerId,
-            name: playerName,
-            score: 0,
-            isHost: true,
-            cards: dealInitialCards(deck)
-        }],
-        deck: deck,
-        discarded: [],
-        currentRound: {
-            leader: playerId,
-            association: '',
-            cards: [],
-            votes: {},
-            results: {}
-        },
-        roundsPlayed: 0
-    };
+   gameState = {
+    phase: 'waiting',
+    players: [{
+        id: playerId,
+        name: playerName,
+        score: 0,
+        isHost: true,
+        cards: dealInitialCards(deck)
+    }],
+    deck: deck,
+    discarded: [],
+    currentRound: {
+        leader: playerId,
+        association: '',
+        cards: [],
+        votes: {},
+        results: {}
+    },
+    roundsPlayed: 0
+};
 
     saveRoomState();
     window.location.href = `game.html?room=${roomCode}&player=${playerId}`;
@@ -550,20 +550,26 @@ function updateGameUI() {
 // Обновление списка игроков
 function updatePlayersList() {
     const playersList = document.getElementById('playersList');
+    if (!playersList) return;
     playersList.innerHTML = '';
-    
+
+    if (!gameState.players || !Array.isArray(gameState.players)) return;
+
     gameState.players.forEach(player => {
         const badge = document.createElement('div');
         badge.className = 'player-badge';
-        if (player.id === gameState.currentRound.leader) {
+        if (player.id === gameState.currentRound?.leader) {
             badge.classList.add('leader');
         }
         badge.textContent = player.name + (player.isHost ? ' 👑' : '') + ` (${player.score})`;
         playersList.appendChild(badge);
     });
-    
-    document.getElementById('playersCount').textContent = 
-        `${gameState.players.length} ${pluralize(gameState.players.length, 'игрок', 'игрока', 'игроков')}`;
+
+    const playersCount = document.getElementById('playersCount');
+    if (playersCount && gameState.players?.length !== undefined) {
+        playersCount.textContent = 
+            `${gameState.players.length} ${pluralize(gameState.players.length, 'игрок', 'игрока', 'игроков')}`;
+    }
 }
 
 // Рендер карт игрока
