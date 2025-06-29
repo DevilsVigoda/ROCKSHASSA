@@ -155,7 +155,7 @@ function createRoom() {
     playerName = prompt('Введите ваше имя:', 'Игрок' + Math.floor(Math.random() * 1000));
     if (!playerName) return;
 
-    roomCode = generateRoomCode();
+    roomCode = "roomroom";//generateRoomCode();
     playerId = generatePlayerId();
 
     const deck = generateDeck();
