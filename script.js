@@ -436,11 +436,22 @@ function handleCardHover(event) {
     }
 }
 
+// Загрузка сохранённого выбора карты
+function loadSelectedCard() {
+    const data = localStorage.getItem(`imaginarium_selected_card_${roomCode}_${playerId}`);
+    if (data) {
+        const selected = JSON.parse(data);
+        // Используем только актуальный выбор (например, не старше 10 секунд)
+        if (Date.now() - selected.timestamp < 10000) {
+            selectedCardId = selected.cardId;
+        }
+    }
+}
+
 // Рендер карт игрока
 function renderPlayerCards(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
-    
     const player = gameState.players.find(p => p.id === playerId);
     if (!player) return;
 
@@ -448,17 +459,18 @@ function renderPlayerCards(containerId) {
         const cardEl = document.createElement('div');
         cardEl.className = 'card';
         cardEl.dataset.cardId = card.id;
-        
-        const img = document.createElement('div');
+
+        const img = document.createElement('img');
+        img.src = `/images/cards/card_${card.id}.png`; // Путь к изображению
+        img.alt = `Карта ${card.id}`;
         img.className = 'card-img';
-        img.textContent = `🖼️ ${card.id}`;
-        cardEl.appendChild(img);
 
         // Восстанавливаем выделение, если карта была выбрана ранее
         if (card.id === selectedCardId) {
             cardEl.classList.add('selected');
         }
 
+        cardEl.appendChild(img);
         cardEl.addEventListener('click', () => selectCard(cardEl, card.id));
         container.appendChild(cardEl);
     });
@@ -474,16 +486,17 @@ function renderTableCards() {
         cardEl.className = 'card';
         cardEl.dataset.cardId = card.cardId;
 
-        const img = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = `/images/cards/card_${card.cardId}.png`;
+        img.alt = `Карта ${card.cardId}`;
         img.className = 'card-img';
-        img.textContent = `🖼️ ${card.cardId}`;
-        cardEl.appendChild(img);
 
         // Восстанавливаем выделение, если карта была выбрана ранее
         if (card.cardId === selectedCardId) {
             cardEl.classList.add('selected');
         }
 
+        cardEl.appendChild(img);
         cardEl.addEventListener('click', () => selectCard(cardEl, card.cardId));
         container.appendChild(cardEl);
     });
@@ -549,6 +562,15 @@ function renderFinalResults() {
     });
 }
 
+// Сохранение текущего выбора карты в localStorage
+function saveSelectedCard() {
+    const selected = {
+        cardId: selectedCardId,
+        timestamp: Date.now()
+    };
+    localStorage.setItem(`imaginarium_selected_card_${roomCode}_${playerId}`, JSON.stringify(selected));
+}
+
 // Выбор карты
 function selectCard(cardElement, cardId) {
     // Если кликаем на уже выбранную карту - снимаем выделение
@@ -556,19 +578,23 @@ function selectCard(cardElement, cardId) {
         cardElement.classList.remove('selected');
         selectedCardId = null;
         lastSelectedCardElement = null;
+        localStorage.removeItem(`imaginarium_selected_card_${roomCode}_${playerId}`);
         return;
     }
-    
+
     // Снимаем выделение со всех карт
     document.querySelectorAll('.card').forEach(card => {
         card.classList.remove('selected');
     });
-    
+
     // Выделяем выбранную карту
     cardElement.classList.add('selected');
     selectedCardId = cardId;
     lastSelectedCardElement = cardElement;
-    
+
+    // Сохраняем выбор карты
+    saveSelectedCard();
+
     // Добавляем обработчик для снятия выделения при наведении на другие карты
     document.querySelectorAll('.card').forEach(card => {
         if (card !== cardElement) {
@@ -711,3 +737,7 @@ function pluralize(number, one, few, many) {
     }
     return many;
 }
+
+img.onerror = function() {
+    img.src = '/images/reserv.png'; // Резервное изображение
+};
