@@ -6,9 +6,24 @@ let playerName;
 let gameState = {};
 let selectedCardId = null;
 let lastSelectedCardElement = null;
-const GITHUB_TOKEN = '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'; // <-- Сюда вставь твой токен
+const GITHUB_TOKEN = ''; // <-- Сюда вставь твой токен
 const REPO_OWNER = 'DevislVigoda';
 const REPO_NAME = 'imaginarium'; // название твоего репозитория
+
+
+async function loadToken() {
+    try {
+        const response = await fetch('token.json?nocache=' + Date.now());
+        if (response.ok) {
+            const data = await response.json();
+            GITHUB_TOKEN = data.token;
+        } else {
+            console.error("Не удалось загрузить token.json");
+        }
+    } catch (err) {
+        console.error("Ошибка при загрузке token.json:", err);
+    }
+}
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
@@ -53,6 +68,9 @@ function initGamePage() {
     document.getElementById('newGameBtn').addEventListener('click', newGame);
     
     // Подключаемся к комнате
+	loadToken().then(() => {
+        connectToRoom(); // только после загрузки токена
+    });
     connectToRoom();
 }
 
@@ -170,34 +188,27 @@ function createRoom() {
 }
 
 // Присоединение к комнате
-function joinRoom() {
+async function joinRoom() {
     const code = document.getElementById('roomCodeInput').value.trim().toUpperCase();
     if (!code || code.length !== 6) {
         alert('Код комнаты должен состоять из 6 символов');
         return;
     }
-    
+
     playerName = prompt('Введите ваше имя:', 'Игрок' + Math.floor(Math.random() * 1000));
     if (!playerName) return;
-    
-    const roomData = localStorage.getItem(`imaginarium_room_${code}`);
-    if (!roomData) {
-        alert('Комната с таким кодом не найдена');
-        return;
-    }
-    
+
     roomCode = code;
     playerId = generatePlayerId();
-    gameState = JSON.parse(roomData);
-    
+
+    await loadRoomState(); // загружаем текущее состояние комнаты с GitHub
+
     if (gameState.players.length >= 8) {
         alert('В комнате уже максимальное количество игроков (8)');
         return;
     }
-    
-    // Раздаем новому игроку карты из колоды
+
     const newPlayerCards = dealInitialCards(gameState.deck);
-    
     gameState.players.push({
         id: playerId,
         name: playerName,
@@ -205,8 +216,9 @@ function joinRoom() {
         isHost: false,
         cards: newPlayerCards
     });
-    
-    saveRoomState();
+
+    await saveRoomState(); // сохраняем обновлённое состояние
+
     window.location.href = `game.html?room=${roomCode}&player=${playerId}`;
 }
 
