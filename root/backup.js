@@ -5,7 +5,7 @@ let roomCode;
 let playerName;
 let gameState = {};
 let selectedCardId = null;
-let lastSelectedCardElement = null;
+let lastSelectedCardElement = null; // Добавляем переменную для хранения последней выбранной кар
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
@@ -49,27 +49,32 @@ function initGamePage() {
     document.getElementById('nextRoundBtn').addEventListener('click', nextRound);
     document.getElementById('newGameBtn').addEventListener('click', newGame);
     
-    // Подключаемся к комнате
+    // Подключаемся к "серверу" (эмуляция через localStorage)
     connectToRoom();
 }
 
-// Подключение к комнате
+// Эмуляция подключения к серверу через localStorage
 function connectToRoom() {
+    // В реальном приложении здесь было бы WebSocket соединение
+    // Для демонстрации используем localStorage и таймер
+    
+    // Загружаем состояние комнаты
     loadRoomState();
+    
+    // Обновляем интерфейс
     updateGameUI();
-    setInterval(loadRoomState, 2000);
+    
+    // Запускаем "прослушку" изменений
+	setInterval(loadRoomState, 2000);
 }
 
 function loadRoomState() {
     const roomData = localStorage.getItem(`imaginarium_room_${roomCode}`);
     if (roomData) {
-        const newState = JSON.parse(roomData);
-        // Проверяем, изменилось ли состояние
-        if (JSON.stringify(gameState) !== JSON.stringify(newState)) {
-            gameState = newState;
-            updateGameUI();
-        }
+        gameState = JSON.parse(roomData);
+        updateGameUI();
     } else {
+        // Комната не найдена
         alert('Комната не найдена или была удалена');
         window.location.href = 'index.html';
     }
@@ -77,6 +82,7 @@ function loadRoomState() {
 
 function saveRoomState() {
     localStorage.setItem(`imaginarium_room_${roomCode}`, JSON.stringify(gameState));
+    // Триггерим событие для других вкладок
     localStorage.setItem(`imaginarium_update_${roomCode}`, Date.now().toString());
 }
 
@@ -85,12 +91,11 @@ function createRoom() {
     playerName = prompt('Введите ваше имя:', 'Игрок' + Math.floor(Math.random() * 1000));
     if (!playerName) return;
     
+    // Генерируем код комнаты
     roomCode = generateRoomCode();
     playerId = generatePlayerId();
     
-    // Создаем колоду и перемешиваем
-    const deck = generateDeck();
-    
+    // Создаем состояние игры
     gameState = {
         phase: 'waiting',
         players: [{
@@ -98,9 +103,9 @@ function createRoom() {
             name: playerName,
             score: 0,
             isHost: true,
-            cards: dealInitialCards(deck)
+            cards: generatePlayerCards()
         }],
-        deck: deck,
+        deck: generateDeck(),
         discarded: [],
         currentRound: {
             leader: playerId,
@@ -112,7 +117,10 @@ function createRoom() {
         roundsPlayed: 0
     };
     
+    // Сохраняем состояние
     saveRoomState();
+    
+    // Переходим в комнату
     window.location.href = `game.html?room=${roomCode}&player=${playerId}`;
 }
 
@@ -127,6 +135,7 @@ function joinRoom() {
     playerName = prompt('Введите ваше имя:', 'Игрок' + Math.floor(Math.random() * 1000));
     if (!playerName) return;
     
+    // Проверяем существование комнаты
     const roomData = localStorage.getItem(`imaginarium_room_${code}`);
     if (!roomData) {
         alert('Комната с таким кодом не найдена');
@@ -135,59 +144,48 @@ function joinRoom() {
     
     roomCode = code;
     playerId = generatePlayerId();
+    
+    // Получаем состояние комнаты
     gameState = JSON.parse(roomData);
     
+    // Добавляем игрока
     if (gameState.players.length >= 8) {
         alert('В комнате уже максимальное количество игроков (8)');
         return;
     }
-    
-    // Раздаем новому игроку карты из колоды
-    const newPlayerCards = dealInitialCards(gameState.deck);
     
     gameState.players.push({
         id: playerId,
         name: playerName,
         score: 0,
         isHost: false,
-        cards: newPlayerCards
+        cards: generatePlayerCards()
     });
     
+    // Сохраняем состояние
     saveRoomState();
+    
+    // Переходим в комнату
     window.location.href = `game.html?room=${roomCode}&player=${playerId}`;
-}
-
-// Раздача начальных карт (6 штук)
-function dealInitialCards(deck) {
-    const cards = [];
-    for (let i = 0; i < 6 && deck.length > 0; i++) {
-        cards.push(deck.pop());
-    }
-    return cards;
 }
 
 // Покидание комнаты
 function leaveRoom() {
     if (confirm('Вы уверены, что хотите покинуть комнату?')) {
-        const playerIndex = gameState.players.findIndex(p => p.id === playerId);
-        if (playerIndex !== -1) {
-            // Возвращаем карты игрока в колоду
-            gameState.deck = [...gameState.deck, ...gameState.players[playerIndex].cards];
-            
-            // Удаляем игрока
-            gameState.players.splice(playerIndex, 1);
-            
-            // Если это был хост и остались игроки, назначаем нового хоста
-            if (playerIndex === 0 && gameState.players.length > 0) {
-                gameState.players[0].isHost = true;
-            }
-            
-            // Если комната пуста, удаляем ее
-            if (gameState.players.length === 0) {
-                localStorage.removeItem(`imaginarium_room_${roomCode}`);
-            } else {
-                saveRoomState();
-            }
+        // Удаляем игрока из состояния
+        gameState.players = gameState.players.filter(p => p.id !== playerId);
+        
+        // Если это был хост, назначаем нового
+        const wasHost = gameState.players.find(p => p.id === playerId)?.isHost;
+        if (wasHost && gameState.players.length > 0) {
+            gameState.players[0].isHost = true;
+        }
+        
+        // Если комната пуста, удаляем ее
+        if (gameState.players.length === 0) {
+            localStorage.removeItem(`imaginarium_room_${roomCode}`);
+        } else {
+            saveRoomState();
         }
         
         window.location.href = 'index.html';
@@ -201,20 +199,8 @@ function startGame() {
         return;
     }
     
-    // Перемешиваем колоду
-    gameState.deck = shuffleArray([...gameState.deck, ...gameState.discarded]);
-    gameState.discarded = [];
-    
-    // Раздаем карты игрокам
-    gameState.players.forEach(player => {
-        while (player.cards.length < 6 && gameState.deck.length > 0) {
-            player.cards.push(gameState.deck.pop());
-        }
-    });
-    
     gameState.phase = 'association';
     gameState.currentRound.leader = getNextLeader();
-    gameState.roundsPlayed = 0;
     saveRoomState();
 }
 
@@ -231,9 +217,7 @@ function submitAssociation() {
         return;
     }
     
-    const player = gameState.players.find(p => p.id === playerId);
-    if (!player) return;
-    
+    // Записываем ассоциацию
     gameState.currentRound.association = association;
     gameState.currentRound.cards = [{
         cardId: selectedCardId,
@@ -242,9 +226,10 @@ function submitAssociation() {
     }];
     
     // Удаляем карту из руки игрока
+    const player = gameState.players.find(p => p.id === playerId);
     player.cards = player.cards.filter(c => c.id !== selectedCardId);
-    selectedCardId = null;
     
+    // Переходим к следующей фазе
     gameState.phase = 'chooseCard';
     saveRoomState();
 }
@@ -256,16 +241,7 @@ function submitCardChoice() {
         return;
     }
     
-    const player = gameState.players.find(p => p.id === playerId);
-    if (!player) return;
-    
-    // Проверяем, что игрок еще не выбрал карту
-    const alreadyChose = gameState.currentRound.cards.some(c => c.playerId === playerId);
-    if (alreadyChose) {
-        alert('Вы уже выбрали карту для этого раунда');
-        return;
-    }
-    
+    // Добавляем карту в раунд
     gameState.currentRound.cards.push({
         cardId: selectedCardId,
         playerId: playerId,
@@ -273,8 +249,8 @@ function submitCardChoice() {
     });
     
     // Удаляем карту из руки игрока
+    const player = gameState.players.find(p => p.id === playerId);
     player.cards = player.cards.filter(c => c.id !== selectedCardId);
-    selectedCardId = null;
     
     // Проверяем, все ли игроки (кроме ведущего) выбрали карты
     const leaderId = gameState.currentRound.leader;
@@ -284,6 +260,7 @@ function submitCardChoice() {
         .every(p => playersWhoChose.includes(p.id));
     
     if (allPlayersChose) {
+        // Перемешиваем карты
         gameState.currentRound.cards = shuffleArray(gameState.currentRound.cards);
         gameState.phase = 'voting';
     }
@@ -298,20 +275,12 @@ function submitVote() {
         return;
     }
     
-    // Проверяем, что игрок еще не голосовал
-    if (gameState.currentRound.votes[playerId]) {
-        alert('Вы уже проголосовали в этом раунде');
-        return;
-    }
-    
+    // Записываем голос
     gameState.currentRound.votes[playerId] = selectedCardId;
-    selectedCardId = null;
     
-    // Проверяем, все ли проголосовали (кроме ведущего)
-    const leaderId = gameState.currentRound.leader;
-    const allPlayersVoted = gameState.players
-        .filter(p => p.id !== leaderId)
-        .every(p => gameState.currentRound.votes[p.id]);
+    // Проверяем, все ли проголосовали
+    const allPlayersVoted = gameState.players.every(p => 
+        p.id === gameState.currentRound.leader || gameState.currentRound.votes[p.id]);
     
     if (allPlayersVoted) {
         calculateRoundResults();
@@ -325,21 +294,12 @@ function submitVote() {
 function nextRound() {
     gameState.roundsPlayed++;
     
-    // Перемещаем карты раунда в сброс
-    gameState.currentRound.cards.forEach(card => {
-        gameState.discarded.push({id: card.cardId});
-    });
-    
     // Проверяем, не закончилась ли игра
     if (gameState.roundsPlayed >= 6) {
         gameState.phase = 'gameOver';
     } else {
-        // Раздаем новые карты игрокам
-        gameState.players.forEach(player => {
-            while (player.cards.length < 6 && gameState.deck.length > 0) {
-                player.cards.push(gameState.deck.pop());
-            }
-        });
+        // Сдаем новые карты игрокам
+        dealCards();
         
         // Начинаем новый раунд
         gameState.phase = 'association';
@@ -364,12 +324,9 @@ function newGame() {
     // Сбрасываем очки
     gameState.players.forEach(p => p.score = 0);
     
-    // Раздаем новые карты
+    // Сдаем новые карты
     gameState.players.forEach(player => {
-        player.cards = [];
-        while (player.cards.length < 6 && gameState.deck.length > 0) {
-            player.cards.push(gameState.deck.pop());
-        }
+        player.cards = generatePlayerCards();
     });
     
     // Начинаем новую игру
@@ -386,24 +343,24 @@ function newGame() {
     saveRoomState();
 }
 
-// Обновление интерфейса
+// Обновление интерфейса в соответствии с состоянием игры
 function updateGameUI() {
+    // Обновляем список игроков
     updatePlayersList();
     
-    // Скрываем все фазы
+    // Показываем соответствующую фазу игры
     document.querySelectorAll('.game-phase').forEach(el => el.classList.add('hidden'));
-    
-    const isHost = gameState.players.find(p => p.id === playerId)?.isHost;
-    const isLeader = gameState.currentRound.leader === playerId;
     
     switch (gameState.phase) {
         case 'waiting':
             document.getElementById('waitingPhase').classList.remove('hidden');
+            // Активируем кнопку "Начать игру" только для хоста
+            const isHost = gameState.players.find(p => p.id === playerId)?.isHost;
             document.getElementById('startGameBtn').disabled = !isHost;
             break;
             
         case 'association':
-            if (isLeader) {
+            if (gameState.currentRound.leader === playerId) {
                 document.getElementById('associationPhase').classList.remove('hidden');
                 renderPlayerCards('playerCards');
             } else {
@@ -414,7 +371,7 @@ function updateGameUI() {
             break;
             
         case 'chooseCard':
-            if (isLeader) {
+            if (gameState.currentRound.leader === playerId) {
                 document.getElementById('waitingPhase').classList.remove('hidden');
                 document.querySelector('#waitingPhase h2').textContent = 
                     'Ожидание выбора карт другими игроками...';
@@ -436,13 +393,11 @@ function updateGameUI() {
         case 'results':
             document.getElementById('resultsPhase').classList.remove('hidden');
             renderRoundResults();
-            document.getElementById('nextRoundBtn').disabled = !isHost;
             break;
             
         case 'gameOver':
             document.getElementById('gameOverPhase').classList.remove('hidden');
             renderFinalResults();
-            document.getElementById('newGameBtn').disabled = !isHost;
             break;
     }
 }
@@ -455,15 +410,42 @@ function updatePlayersList() {
     gameState.players.forEach(player => {
         const badge = document.createElement('div');
         badge.className = 'player-badge';
-        if (player.id === gameState.currentRound.leader) {
-            badge.classList.add('leader');
-        }
         badge.textContent = player.name + (player.isHost ? ' 👑' : '') + ` (${player.score})`;
         playersList.appendChild(badge);
     });
     
     document.getElementById('playersCount').textContent = 
         `${gameState.players.length} ${pluralize(gameState.players.length, 'игрок', 'игрока', 'игроков')}`;
+}
+
+// Обработчик наведения на карту
+function handleCardHover(event) {
+    const hoveredCard = event.currentTarget;
+    
+    // Если есть выбранная карта и наводим на другую - снимаем обработчики
+    if (selectedCardId && hoveredCard !== lastSelectedCardElement) {
+        document.querySelectorAll('.card').forEach(card => {
+            card.removeEventListener('mouseenter', handleCardHover);
+        });
+        
+        if (lastSelectedCardElement) {
+            lastSelectedCardElement.classList.remove('selected');
+        }
+        selectedCardId = null;
+        lastSelectedCardElement = null;
+    }
+}
+
+// Загрузка сохранённого выбора карты
+function loadSelectedCard() {
+    const data = localStorage.getItem(`imaginarium_selected_card_${roomCode}_${playerId}`);
+    if (data) {
+        const selected = JSON.parse(data);
+        // Используем только актуальный выбор (например, не старше 10 секунд)
+        if (Date.now() - selected.timestamp < 10000) {
+            selectedCardId = selected.cardId;
+        }
+    }
 }
 
 // Рендер карт игрока
@@ -474,7 +456,21 @@ function renderPlayerCards(containerId) {
     if (!player) return;
 
     player.cards.forEach(card => {
-        const cardEl = createCardElement(card.id, card.id === selectedCardId);
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.dataset.cardId = card.id;
+
+        const img = document.createElement('img');
+        img.src = `/images/cards/card_${card.id}.png`; // Путь к изображению
+        img.alt = `Карта ${card.id}`;
+        img.className = 'card-img';
+
+        // Восстанавливаем выделение, если карта была выбрана ранее
+        if (card.id === selectedCardId) {
+            cardEl.classList.add('selected');
+        }
+
+        cardEl.appendChild(img);
         cardEl.addEventListener('click', () => selectCard(cardEl, card.id));
         container.appendChild(cardEl);
     });
@@ -486,29 +482,24 @@ function renderTableCards() {
     container.innerHTML = '';
 
     gameState.currentRound.cards.forEach(card => {
-        const cardEl = createCardElement(card.cardId, card.cardId === selectedCardId);
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.dataset.cardId = card.cardId;
+
+        const img = document.createElement('img');
+        img.src = `/images/cards/card_${card.cardId}.png`;
+        img.alt = `Карта ${card.cardId}`;
+        img.className = 'card-img';
+
+        // Восстанавливаем выделение, если карта была выбрана ранее
+        if (card.cardId === selectedCardId) {
+            cardEl.classList.add('selected');
+        }
+
+        cardEl.appendChild(img);
         cardEl.addEventListener('click', () => selectCard(cardEl, card.cardId));
         container.appendChild(cardEl);
     });
-}
-
-// Создание элемента карты
-function createCardElement(cardId, isSelected = false) {
-    const cardEl = document.createElement('div');
-    cardEl.className = 'card';
-    if (isSelected) cardEl.classList.add('selected');
-    cardEl.dataset.cardId = cardId;
-
-    const img = document.createElement('img');
-    img.src = `images/cards/card_${cardId}.png`;
-    img.alt = `Карта ${cardId}`;
-    img.className = 'card-img';
-    img.onerror = function() {
-        this.src = 'images/reserv.png';
-    };
-
-    cardEl.appendChild(img);
-    return cardEl;
 }
 
 // Рендер результатов раунда
@@ -517,92 +508,110 @@ function renderRoundResults() {
     container.innerHTML = '';
     
     const originalCard = gameState.currentRound.cards.find(c => c.isOriginal);
-    if (!originalCard) return;
-    
     const originalCardId = originalCard.cardId;
-    const votesStats = {};
     
+    // Собираем статистику по голосам
+    const votesStats = {};
     Object.values(gameState.currentRound.votes).forEach(cardId => {
         votesStats[cardId] = (votesStats[cardId] || 0) + 1;
     });
     
-    // Отображаем все карты
+    // Добавляем информацию о каждой карте
     gameState.currentRound.cards.forEach(card => {
-        const cardEl = createCardElement(card.cardId);
-        const votesCount = votesStats[card.cardId] || 0;
-        
-        const info = document.createElement('div');
-        info.className = 'card-info';
-        info.innerHTML = `
-            <p>${card.isOriginal ? 'Оригинальная карта' : 'От ' + getPlayerName(card.playerId)}</p>
-            <p>Голосов: ${votesCount}</p>
-        `;
-        
         const item = document.createElement('div');
         item.className = 'result-item';
-        item.appendChild(cardEl);
-        item.appendChild(info);
+        
+        const cardInfo = document.createElement('p');
+        cardInfo.textContent = `Карта ${card.cardId} (${card.isOriginal ? 'оригинал' : 'от ' + getPlayerName(card.playerId)})`;
+        
+        const votesInfo = document.createElement('p');
+        const votesCount = votesStats[card.cardId] || 0;
+        votesInfo.textContent = `Голосов: ${votesCount}`;
+        
+        item.appendChild(cardInfo);
+        item.appendChild(votesInfo);
         container.appendChild(item);
     });
     
-    // Отображаем результаты
-    const resultsDiv = document.createElement('div');
-    resultsDiv.className = 'round-scores';
-    resultsDiv.innerHTML = '<h3>Начисленные очки:</h3>';
+    // Добавляем информацию о начисленных очках
+    const scoresInfo = document.createElement('div');
+    scoresInfo.className = 'result-item';
+    scoresInfo.innerHTML = '<h3>Начисленные очки:</h3>';
     
     Object.entries(gameState.currentRound.results).forEach(([playerId, points]) => {
-        resultsDiv.innerHTML += `<p>${getPlayerName(playerId)}: ${points} ${pluralize(points, 'очко', 'очка', 'очков')}</p>`;
+        const p = document.createElement('p');
+        p.textContent = `${getPlayerName(playerId)}: ${points} ${pluralize(points, 'очко', 'очка', 'очков')}`;
+        scoresInfo.appendChild(p);
     });
     
-    container.appendChild(resultsDiv);
+    container.appendChild(scoresInfo);
 }
 
 // Рендер финальных результатов
 function renderFinalResults() {
     const container = document.getElementById('finalResults');
-    container.innerHTML = '<h2>Итоговые результаты:</h2>';
+    container.innerHTML = '<h3>Итоговые результаты:</h3>';
     
+    // Сортируем игроков по очкам
     const sortedPlayers = [...gameState.players].sort((a, b) => b.score - a.score);
     
     sortedPlayers.forEach((player, index) => {
         const p = document.createElement('p');
-        p.className = 'final-score';
         p.textContent = `${index + 1}. ${player.name}: ${player.score} ${pluralize(player.score, 'очко', 'очка', 'очков')}`;
         container.appendChild(p);
     });
 }
 
+// Сохранение текущего выбора карты в localStorage
+function saveSelectedCard() {
+    const selected = {
+        cardId: selectedCardId,
+        timestamp: Date.now()
+    };
+    localStorage.setItem(`imaginarium_selected_card_${roomCode}_${playerId}`, JSON.stringify(selected));
+}
+
 // Выбор карты
 function selectCard(cardElement, cardId) {
+    // Если кликаем на уже выбранную карту - снимаем выделение
+    if (selectedCardId === cardId) {
+        cardElement.classList.remove('selected');
+        selectedCardId = null;
+        lastSelectedCardElement = null;
+        localStorage.removeItem(`imaginarium_selected_card_${roomCode}_${playerId}`);
+        return;
+    }
+
     // Снимаем выделение со всех карт
     document.querySelectorAll('.card').forEach(card => {
         card.classList.remove('selected');
     });
 
-    // Если кликаем на уже выбранную карту - снимаем выделение
-    if (selectedCardId === cardId) {
-        selectedCardId = null;
-        lastSelectedCardElement = null;
-        return;
-    }
-
-    // Выделяем новую карту
+    // Выделяем выбранную карту
     cardElement.classList.add('selected');
     selectedCardId = cardId;
     lastSelectedCardElement = cardElement;
+
+    // Сохраняем выбор карты
+    saveSelectedCard();
+
+    // Добавляем обработчик для снятия выделения при наведении на другие карты
+    document.querySelectorAll('.card').forEach(card => {
+        if (card !== cardElement) {
+            card.addEventListener('mouseenter', handleCardHover);
+        }
+    });
 }
 
 // Расчет результатов раунда
 function calculateRoundResults() {
     const originalCard = gameState.currentRound.cards.find(c => c.isOriginal);
-    if (!originalCard) return;
-    
     const originalCardId = originalCard.cardId;
     const leaderId = gameState.currentRound.leader;
-    const votesStats = {};
     
-    // Считаем голоса
-    Object.values(gameState.currentRound.votes).forEach(cardId => {
+    // Собираем статистику по голосам
+    const votesStats = {};
+    Object.entries(gameState.currentRound.votes).forEach(([voterId, cardId]) => {
         votesStats[cardId] = (votesStats[cardId] || 0) + 1;
     });
     
@@ -610,19 +619,20 @@ function calculateRoundResults() {
     const correctVotes = votesStats[originalCardId] || 0;
     gameState.currentRound.results[leaderId] = correctVotes * 2;
     
-    // Начисляем очки игрокам
+    // Начисляем очки игрокам за угаданные карты
     Object.entries(gameState.currentRound.votes).forEach(([voterId, cardId]) => {
         if (cardId === originalCardId) {
-            // Угадал оригинальную карту
+            // Игрок угадал оригинальную карту
             gameState.currentRound.results[voterId] = (gameState.currentRound.results[voterId] || 0) + 3;
         } else if (votesStats[cardId] > 0) {
-            // Проголосовал за карту, которая получила голоса
+            // Игрок проголосовал за карту, которая получила голоса
             gameState.currentRound.results[voterId] = (gameState.currentRound.results[voterId] || 0) + 1;
         }
     });
     
-    // Если никто не угадал оригинальную карту
+    // Начисляем дополнительные очки, если никто не угадал оригинальную карту
     if (correctVotes === 0) {
+        // Все игроки, кроме ведущего, получают по 2 очка
         gameState.players.forEach(player => {
             if (player.id !== leaderId) {
                 gameState.currentRound.results[player.id] = (gameState.currentRound.results[player.id] || 0) + 2;
@@ -630,11 +640,26 @@ function calculateRoundResults() {
         });
     }
     
-    // Обновляем общий счет
+    // Обновляем общий счет игроков
     Object.entries(gameState.currentRound.results).forEach(([playerId, points]) => {
         const player = gameState.players.find(p => p.id === playerId);
         if (player) {
             player.score += points;
+        }
+    });
+    
+    // Перемещаем карты в сброс
+    gameState.currentRound.cards.forEach(card => {
+        gameState.discarded.push({id: card.cardId});
+    });
+}
+
+// Раздача карт игрокам
+function dealCards() {
+    gameState.players.forEach(player => {
+        // Добираем карты до 6
+        while (player.cards.length < 6 && gameState.deck.length > 0) {
+            player.cards.push(gameState.deck.pop());
         }
     });
 }
@@ -671,13 +696,24 @@ function generateRoomCode() {
     return result;
 }
 
-// Генерация колоды карт (98 уникальных карт)
+// Генерация колоды карт
 function generateDeck() {
     const cards = [];
+    // В реальной игре здесь было бы 98 уникальных карт
     for (let i = 1; i <= 98; i++) {
         cards.push({id: i});
     }
     return shuffleArray(cards);
+}
+
+// Генерация начальных карт игрока
+function generatePlayerCards() {
+    const cards = [];
+    for (let i = 0; i < 6; i++) {
+        // В реальной игре карты брались бы из колоды
+        cards.push({id: Math.floor(Math.random() * 98) + 1});
+    }
+    return cards;
 }
 
 // Перемешивание массива
@@ -701,3 +737,7 @@ function pluralize(number, one, few, many) {
     }
     return many;
 }
+
+img.onerror = function() {
+    img.src = '/images/reserv.png'; // Резервное изображение
+};
