@@ -57,7 +57,7 @@ function initGamePage() {
 function connectToRoom() {
     loadRoomState();
     updateGameUI();
-    setInterval(loadRoomState, 2000);
+    setInterval(loadRoomState, 1000);
 }
 
 function loadRoomState() {
