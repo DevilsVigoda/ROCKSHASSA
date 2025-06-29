@@ -191,6 +191,7 @@ function leaveRoom() {
         }
         
         window.location.href = 'index.html';
+		location.reload();
     }
 }
 
@@ -216,6 +217,7 @@ function startGame() {
     gameState.currentRound.leader = getNextLeader();
     gameState.roundsPlayed = 0;
     saveRoomState();
+	location.reload();
 }
 
 // Отправка ассоциации
@@ -247,6 +249,7 @@ function submitAssociation() {
     
     gameState.phase = 'chooseCard';
     saveRoomState();
+	location.reload();
 }
 
 // Выбор карты для ассоциации
@@ -289,6 +292,7 @@ function submitCardChoice() {
     }
     
     saveRoomState();
+	location.reload();
 }
 
 // Голосование
@@ -319,6 +323,7 @@ function submitVote() {
     }
     
     saveRoomState();
+	location.reload();
 }
 
 // Переход к следующему раунду
@@ -353,6 +358,7 @@ function nextRound() {
     }
     
     saveRoomState();
+	location.reload();
 }
 
 // Новая игра
@@ -384,6 +390,7 @@ function newGame() {
     gameState.roundsPlayed = 0;
     
     saveRoomState();
+	location.reload();
 }
 
 // Обновление интерфейса
