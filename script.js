@@ -5,6 +5,7 @@ let roomCode;
 let playerName;
 let gameState = {};
 let selectedCardId = null;
+let lastSelectedCardElement = null; // Добавляем переменную для хранения последней выбранной кар
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
@@ -417,11 +418,30 @@ function updatePlayersList() {
         `${gameState.players.length} ${pluralize(gameState.players.length, 'игрок', 'игрока', 'игроков')}`;
 }
 
+// Обработчик наведения на карту
+function handleCardHover(event) {
+    const hoveredCard = event.currentTarget;
+    
+    // Если есть выбранная карта и наводим на другую - снимаем обработчики
+    if (selectedCardId && hoveredCard !== lastSelectedCardElement) {
+        document.querySelectorAll('.card').forEach(card => {
+            card.removeEventListener('mouseenter', handleCardHover);
+        });
+        
+        if (lastSelectedCardElement) {
+            lastSelectedCardElement.classList.remove('selected');
+        }
+        selectedCardId = null;
+        lastSelectedCardElement = null;
+    }
+}
+
 // Рендер карт игрока
 function renderPlayerCards(containerId) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
     selectedCardId = null;
+    lastSelectedCardElement = null;
     
     const player = gameState.players.find(p => p.id === playerId);
     if (!player) return;
@@ -433,7 +453,7 @@ function renderPlayerCards(containerId) {
         
         const img = document.createElement('div');
         img.className = 'card-img';
-        img.textContent = `🖼️ ${card.id}`; // В реальной игре здесь было бы изображение
+        img.textContent = `🖼️ ${card.id}`;
         
         cardEl.appendChild(img);
         cardEl.addEventListener('click', () => selectCard(cardEl, card.id));
@@ -446,6 +466,7 @@ function renderTableCards() {
     const container = document.getElementById('tableCards');
     container.innerHTML = '';
     selectedCardId = null;
+    lastSelectedCardElement = null;
     
     gameState.currentRound.cards.forEach(card => {
         const cardEl = document.createElement('div');
@@ -454,7 +475,7 @@ function renderTableCards() {
         
         const img = document.createElement('div');
         img.className = 'card-img';
-        img.textContent = `🖼️ ${card.cardId}`; // В реальной игре здесь было бы изображение
+        img.textContent = `🖼️ ${card.cardId}`;
         
         cardEl.appendChild(img);
         cardEl.addEventListener('click', () => selectCard(cardEl, card.cardId));
@@ -524,6 +545,14 @@ function renderFinalResults() {
 
 // Выбор карты
 function selectCard(cardElement, cardId) {
+    // Если кликаем на уже выбранную карту - снимаем выделение
+    if (selectedCardId === cardId) {
+        cardElement.classList.remove('selected');
+        selectedCardId = null;
+        lastSelectedCardElement = null;
+        return;
+    }
+    
     // Снимаем выделение со всех карт
     document.querySelectorAll('.card').forEach(card => {
         card.classList.remove('selected');
@@ -532,6 +561,14 @@ function selectCard(cardElement, cardId) {
     // Выделяем выбранную карту
     cardElement.classList.add('selected');
     selectedCardId = cardId;
+    lastSelectedCardElement = cardElement;
+    
+    // Добавляем обработчик для снятия выделения при наведении на другие карты
+    document.querySelectorAll('.card').forEach(card => {
+        if (card !== cardElement) {
+            card.addEventListener('mouseenter', handleCardHover);
+        }
+    });
 }
 
 // Расчет результатов раунда
