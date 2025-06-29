@@ -113,18 +113,17 @@ async function loadRoomState() {
 }
 
 async function saveRoomState() {
-    if (!roomCode) return;
+    if (!roomCode || !GITHUB_TOKEN) return;
 
     const url = `https://api.github.com/repos/ ${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(gameState, null, 2))));
-
     const data = {
         message: "Update room state",
         content: content,
     };
 
     try {
-        const response = await fetch(url, {
+        const shaResponse = await fetch(url, {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${GITHUB_TOKEN}`,
@@ -132,9 +131,9 @@ async function saveRoomState() {
             }
         });
 
-        if (response.ok) {
-            const json = await response.json();
-            data.sha = json.sha;
+        if (shaResponse.ok) {
+            const shaData = await shaResponse.json();
+            data.sha = shaData.sha;
         }
 
         await fetch(url, {
@@ -145,23 +144,21 @@ async function saveRoomState() {
             },
             body: JSON.stringify(data)
         });
+
     } catch (err) {
         console.error("Ошибка сохранения:", err);
     }
-	location.reload();
 }
 
 // Создание новой комнаты
 function createRoom() {
     playerName = prompt('Введите ваше имя:', 'Игрок' + Math.floor(Math.random() * 1000));
     if (!playerName) return;
-    
+
     roomCode = generateRoomCode();
     playerId = generatePlayerId();
-    
-    // Создаем колоду и перемешиваем
+
     const deck = generateDeck();
-    
     gameState = {
         phase: 'waiting',
         players: [{
@@ -182,7 +179,7 @@ function createRoom() {
         },
         roundsPlayed: 0
     };
-    
+
     saveRoomState();
     window.location.href = `game.html?room=${roomCode}&player=${playerId}`;
 }
@@ -201,7 +198,7 @@ async function joinRoom() {
     roomCode = code;
     playerId = generatePlayerId();
 
-    await loadRoomState(); // загружаем текущее состояние комнаты с GitHub
+    await loadRoomState(); // загружаем текущее состояние комнаты
 
     if (gameState.players.length >= 8) {
         alert('В комнате уже максимальное количество игроков (8)');
@@ -232,31 +229,62 @@ function dealInitialCards(deck) {
 }
 
 // Покидание комнаты
-function leaveRoom() {
+async function leaveRoom() {
     if (confirm('Вы уверены, что хотите покинуть комнату?')) {
         const playerIndex = gameState.players.findIndex(p => p.id === playerId);
         if (playerIndex !== -1) {
             // Возвращаем карты игрока в колоду
             gameState.deck = [...gameState.deck, ...gameState.players[playerIndex].cards];
-            
             // Удаляем игрока
             gameState.players.splice(playerIndex, 1);
-            
+
             // Если это был хост и остались игроки, назначаем нового хоста
             if (playerIndex === 0 && gameState.players.length > 0) {
                 gameState.players[0].isHost = true;
             }
-            
-            // Если комната пуста, удаляем ее
+
+            // Если комната пуста, удаляем файл
             if (gameState.players.length === 0) {
-                localStorage.removeItem(`imaginarium_room_${roomCode}`);
+                await deleteRoomFile();
             } else {
-                saveRoomState();
+                await saveRoomState();
             }
         }
-        
+
         window.location.href = 'index.html';
-		
+    }
+}
+
+// Удаление файла комнаты
+async function deleteRoomFile() {
+    const url = `https://api.github.com/repos/ ${REPO_OWNER}/${REPO_NAME}/contents/rooms/room_${roomCode}.json`;
+
+    try {
+        const shaResponse = await fetch(url, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${GITHUB_TOKEN}`,
+                Accept: "application/vnd.github.v3+json"
+            }
+        });
+
+        if (shaResponse.ok) {
+            const shaData = await shaResponse.json();
+
+            await fetch(url, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${GITHUB_TOKEN}`,
+                    Accept: "application/vnd.github.v3+json"
+                },
+                body: JSON.stringify({
+                    message: "Delete room file",
+                    sha: shaData.sha
+                })
+            });
+        }
+    } catch (err) {
+        console.error("Ошибка удаления файла комнаты:", err);
     }
 }
 
