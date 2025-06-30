@@ -3,78 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>John Smith - Fullstack Developer</title>
+    <title>Alex Developer - Fullstack Engineer</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div id="matrix"></div>
-    <div class="content">
-        <div class="terminal">
-            <div class="terminal-header">
-                <div class="buttons">
-                    <span class="red"></span>
-                    <span class="yellow"></span>
-                    <span class="green"></span>
-                </div>
-                <div class="title">john_smith@dev-portfolio: ~</div>
+    <div class="container">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <span class="logo-bracket">{</span>
+                <span class="logo-text">ADev</span>
+                <span class="logo-bracket">}</span>
             </div>
-            <div class="terminal-body">
-                <div class="command">$ whoami</div>
-                <div class="output">
-                    <h1>John Smith</h1>
-                    <div class="tagline">Fullstack Developer | Blockchain Enthusiast | Problem Solver</div>
-                </div>
-                
-                <div class="command">$ skills</div>
-                <div class="output skills">
-                    <div class="skill-category">
-                        <h3>Frontend:</h3>
-                        <p>React, Vue, TypeScript, HTML5/CSS3, Webpack</p>
-                    </div>
-                    <div class="skill-category">
-                        <h3>Backend:</h3>
-                        <p>Node.js, Python, Django, PostgreSQL, MongoDB</p>
-                    </div>
-                    <div class="skill-category">
-                        <h3>DevOps:</h3>
-                        <p>Docker, AWS, CI/CD, Kubernetes</p>
-                    </div>
-                </div>
-                
-                <div class="command">$ contact --social</div>
-                <div class="output contacts">
-                    <a href="mailto:john@smith.dev" target="_blank">
-                        <i class="fas fa-envelope"></i> john@smith.dev
-                    </a>
-                    <a href="https://github.com/johnsmith" target="_blank">
-                        <i class="fab fa-github"></i> github.com/johnsmith
-                    </a>
-                    <a href="https://linkedin.com/in/johnsmith" target="_blank">
-                        <i class="fab fa-linkedin"></i> linkedin.com/in/johnsmith
-                    </a>
-                    <a href="tel:+1234567890">
-                        <i class="fas fa-phone"></i> +1 (234) 567-89-00
-                    </a>
-                </div>
-                
-                <div class="command">$ cat projects.txt</div>
-                <div class="output projects">
-                    <div class="project">
-                        <h3>Blockchain Explorer</h3>
-                        <p>Fullstack application for exploring blockchain transactions with React and Node.js</p>
-                    </div>
-                    <div class="project">
-                        <h3>AI Content Generator</h3>
-                        <p>Python-based tool for automated content generation using GPT-3</p>
-                    </div>
-                </div>
-                
-                <div class="command">$ <span class="cursor">|</span></div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active" data-tab="home"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="#about" class="nav-link" data-tab="about"><i class="fas fa-user"></i> Обо мне</a></li>
+                <li><a href="#portfolio" class="nav-link" data-tab="portfolio"><i class="fas fa-code"></i> Портфолио</a></li>
+                <li><a href="#skills" class="nav-link" data-tab="skills"><i class="fas fa-cogs"></i> Навыки</a></li>
+                <li><a href="#contact" class="nav-link" data-tab="contact"><i class="fas fa-envelope"></i> Контакты</a></li>
+            </ul>
+            <div class="nav-social">
+                <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
             </div>
-        </div>
+        </nav>
+
+        <main class="content">
+            <section id="home" class="tab-content active">
+                <div class="hero">
+                    <div class="hero-text">
+                        <h1 class="animated-text">Привет, я <span class="highlight">Алекс</span></h1>
+                        <h2 class="typewriter">Fullstack разработчик</h2>
+                        <p class="hero-description">Создаю современные веб-приложения с упором на производительность и удобство использования</p>
+                        <div class="hero-buttons">
+                            <a href="#portfolio" class="btn primary">Мои работы</a>
+                            <a href="#contact" class="btn secondary">Связаться</a>
+                        </div>
+                    </div>
+                    <div class="hero-image">
+                        <div class="code-snippet">
+                            <pre><code class="language-javascript">
+function Developer() {
+  this.skills = ['JavaScript', 'React', 'Node.js'];
+  this.passion = 'Создание инновационных решений';
+  this.motto = 'Пиши код, который имеет значение';
+}
+                            </code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="tab-content">
+                <h2 class="section-title"><span class="section-number">01.</span> Обо мне</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>Я fullstack разработчик с 5-летним опытом создания веб-приложений. Специализируюсь на JavaScript экосистеме, но также работал с Python и Ruby.</p>
+                        <p>Мой подход сочетает техническое мастерство с пониманием бизнес-целей, что позволяет создавать решения, которые действительно работают.</p>
+                        <div class="experience">
+                            <div class="exp-item">
+                                <h3>Senior Developer @TechCorp</h3>
+                                <span class="exp-date">2020 - Настоящее время</span>
+                                <p>Руководство командой разработчиков, архитектурные решения, код-ревью</p>
+                            </div>
+                            <div class="exp-item">
+                                <h3>Fullstack Developer @WebStudio</h3>
+                                <span class="exp-date">2018 - 2020</span>
+                                <p>Разработка клиентских и серверных компонентов веб-приложений</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="about-image">
+                        <div class="tech-stack">
+                            <div class="tech-item" data-tech="react">
+                                <i class="fab fa-react"></i>
+                                <span>React</span>
+                            </div>
+                            <div class="tech-item" data-tech="node">
+                                <i class="fab fa-node-js"></i>
+                                <span>Node.js</span>
+                            </div>
+                            <div class="tech-item" data-tech="python">
+                                <i class="fab fa-python"></i>
+                                <span>Python</span>
+                            </div>
+                            <div class="tech-item" data-tech="aws">
+                                <i class="fab fa-aws"></i>
+                                <span>AWS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="portfolio" class="tab-content">
+                <h2 class="section-title"><span class="section-number">02.</span> Портфолио</h2>
+                <div class="portfolio-grid">
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img src="https://via.placeholder.com/600x400/0a0a0a/00ff41?text=E-Commerce+Platform" alt="E-Commerce Platform">
+                            <div class="project-links">
+                                <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i></a>
+                                <a href="#" class="project-link"><i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3>E-Commerce Platform</h3>
+                            <p>Полнофункциональная платформа электронной коммерции с платежной системой и аналитикой</p>
+                            <div class="project-tech">
+                                <span>React</span>
+                                <span>Node.js</span>
+                                <span>MongoDB</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img src="https://via.placeholder.com/600x400/0a0a0a/00ff41?text=Task+Management+App" alt="Task Management App">
+                            <div class="project-links">
+                                <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i></a>
+                                <a href="#" class="project-link"><i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3>Task Management App</h3>
+                            <p>Приложение для управления задачами с совместной работой в реальном времени</p>
+                            <div class="project-tech">
+                                <span>Vue.js</span>
+                                <span>Firebase</span>
+                                <span>WebSockets</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card">
+                        <div class="project-image">
+                            <img src="https://via.placeholder.com/600x400/0a0a0a/00ff41?text=AI+Content+Generator" alt="AI Content Generator">
+                            <div class="project-links">
+                                <a href="#" class="project-link"><i class="fas fa-external-link-alt"></i></a>
+                                <a href="#" class="project-link"><i class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                        <div class="project-info">
+                            <h3>AI Content Generator</h3>
+                            <p>Генератор контента на основе искусственного интеллекта с пользовательскими шаблонами</p>
+                            <div class="project-tech">
+                                <span>Python</span>
+                                <span>GPT-3</span>
+                                <span>Flask</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="skills" class="tab-content">
+                <h2 class="section-title"><span class="section-number">03.</span> Навыки</h2>
+                <div class="skills-container">
+                    <div class="skills-category">
+                        <h3><i class="fas fa-laptop-code"></i> Frontend</h3>
+                        <div class="skill-bar">
+                            <div class="skill-name">React</div>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Vue.js</div>
+                            <div class="skill-level" data-level="80"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">HTML/CSS</div>
+                            <div class="skill-level" data-level="95"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">TypeScript</div>
+                            <div class="skill-level" data-level="85"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-category">
+                        <h3><i class="fas fa-server"></i> Backend</h3>
+                        <div class="skill-bar">
+                            <div class="skill-name">Node.js</div>
+                            <div class="skill-level" data-level="88"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Python</div>
+                            <div class="skill-level" data-level="75"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Express</div>
+                            <div class="skill-level" data-level="85"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">GraphQL</div>
+                            <div class="skill-level" data-level="70"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-category">
+                        <h3><i class="fas fa-database"></i> Базы данных</h3>
+                        <div class="skill-bar">
+                            <div class="skill-name">MongoDB</div>
+                            <div class="skill-level" data-level="80"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">PostgreSQL</div>
+                            <div class="skill-level" data-level="75"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Redis</div>
+                            <div class="skill-level" data-level="65"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-category">
+                        <h3><i class="fas fa-cloud"></i> DevOps & Tools</h3>
+                        <div class="skill-bar">
+                            <div class="skill-name">Docker</div>
+                            <div class="skill-level" data-level="85"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">AWS</div>
+                            <div class="skill-level" data-level="70"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">Git</div>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-name">CI/CD</div>
+                            <div class="skill-level" data-level="75"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="tab-content">
+                <h2 class="section-title"><span class="section-number">04.</span> Контакты</h2>
+                <div class="contact-container">
+                    <div class="contact-info">
+                        <h3>Давайте работать вместе!</h3>
+                        <p>Если у вас есть проект или вы хотите обсудить возможности сотрудничества, свяжитесь со мной.</p>
+                        
+                        <div class="contact-details">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <h4>Email</h4>
+                                    <a href="mailto:alex@developer.com">alex@developer.com</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <div>
+                                    <h4>Телефон</h4>
+                                    <a href="tel:+1234567890">+1 (234) 567-89-00</a>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <h4>Локация</h4>
+                                    <span>Москва, Россия</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-social">
+                            <h4>Социальные сети</h4>
+                            <div class="social-links">
+                                <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form">
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <label for="name">Имя</label>
+                                <input type="text" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">Тема</label>
+                                <input type="text" id="subject" name="subject" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Сообщение</label>
+                                <textarea id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn primary">Отправить сообщение</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
