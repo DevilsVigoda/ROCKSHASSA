@@ -175,3 +175,24 @@ function setupScrollAnimations() {
     // Initial check
     handleScrollAnimation();
 }
+
+
+document.querySelector('.hero-buttons .btn[href="#portfolio"]').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const targetId = this.getAttribute('href').substring(1);
+
+    // Удалить active у всех ссылок и контента
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    // Найти и активировать нужную ссылку и контент
+    const correspondingLink = document.querySelector(`.nav-link[data-tab="${targetId}"]`);
+    if (correspondingLink) correspondingLink.classList.add('active');
+
+    const tabContent = document.getElementById(targetId);
+    if (tabContent) tabContent.classList.add('active');
+
+    // Прокрутить к целевой секции
+    tabContent.scrollIntoView({ behavior: 'smooth' });
+});

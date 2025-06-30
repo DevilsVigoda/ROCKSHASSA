@@ -44,7 +44,7 @@ body {
 }
 
 .navbar {
-    width: 250px;
+    width: 350px;
     padding: 40px 20px;
     display: flex;
     flex-direction: column;
@@ -55,6 +55,7 @@ body {
 }
 
 .nav-brand {
+	width: 400px;
     display: flex;
     align-items: center;
     margin-bottom: 40px;
