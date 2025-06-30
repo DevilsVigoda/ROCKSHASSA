@@ -3,33 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Имаджинариум - Главная</title>
+    <title>John Smith - Fullstack Developer</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Имаджинариум</h1>
-        
-        <div class="menu">
-            <button id="createRoomBtn">Создать комнату</button>
-            <div class="or-divider">или</div>
-            <div class="join-room">
-                <input type="text" id="roomCodeInput" placeholder="Введите код комнаты" maxlength="6">
-                <button id="joinRoomBtn">Присоединиться</button>
+    <div id="matrix"></div>
+    <div class="content">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="buttons">
+                    <span class="red"></span>
+                    <span class="yellow"></span>
+                    <span class="green"></span>
+                </div>
+                <div class="title">john_smith@dev-portfolio: ~</div>
+            </div>
+            <div class="terminal-body">
+                <div class="command">$ whoami</div>
+                <div class="output">
+                    <h1>John Smith</h1>
+                    <div class="tagline">Fullstack Developer | Blockchain Enthusiast | Problem Solver</div>
+                </div>
+                
+                <div class="command">$ skills</div>
+                <div class="output skills">
+                    <div class="skill-category">
+                        <h3>Frontend:</h3>
+                        <p>React, Vue, TypeScript, HTML5/CSS3, Webpack</p>
+                    </div>
+                    <div class="skill-category">
+                        <h3>Backend:</h3>
+                        <p>Node.js, Python, Django, PostgreSQL, MongoDB</p>
+                    </div>
+                    <div class="skill-category">
+                        <h3>DevOps:</h3>
+                        <p>Docker, AWS, CI/CD, Kubernetes</p>
+                    </div>
+                </div>
+                
+                <div class="command">$ contact --social</div>
+                <div class="output contacts">
+                    <a href="mailto:john@smith.dev" target="_blank">
+                        <i class="fas fa-envelope"></i> john@smith.dev
+                    </a>
+                    <a href="https://github.com/johnsmith" target="_blank">
+                        <i class="fab fa-github"></i> github.com/johnsmith
+                    </a>
+                    <a href="https://linkedin.com/in/johnsmith" target="_blank">
+                        <i class="fab fa-linkedin"></i> linkedin.com/in/johnsmith
+                    </a>
+                    <a href="tel:+1234567890">
+                        <i class="fas fa-phone"></i> +1 (234) 567-89-00
+                    </a>
+                </div>
+                
+                <div class="command">$ cat projects.txt</div>
+                <div class="output projects">
+                    <div class="project">
+                        <h3>Blockchain Explorer</h3>
+                        <p>Fullstack application for exploring blockchain transactions with React and Node.js</p>
+                    </div>
+                    <div class="project">
+                        <h3>AI Content Generator</h3>
+                        <p>Python-based tool for automated content generation using GPT-3</p>
+                    </div>
+                </div>
+                
+                <div class="command">$ <span class="cursor">|</span></div>
             </div>
         </div>
-        
-        <div class="rules">
-            <h2>Правила игры</h2>
-            <p>1. Каждый игрок получает 6 карт с абстрактными изображениями.</p>
-            <p>2. Ходящий игрок загадывает ассоциацию к одной из своих карт.</p>
-            <p>3. Остальные игроки выбирают из своих карт наиболее подходящую под эту ассоциацию.</p>
-            <p>4. Все карты перемешиваются и выкладываются на стол.</p>
-            <p>5. Игроки голосуют, какая карта была загадана ходящим.</p>
-            <p>6. Очки начисляются за угаданные карты и за угадывание загаданной карты.</p>
-        </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
