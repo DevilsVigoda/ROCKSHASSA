@@ -94,7 +94,23 @@ function animateSkillBars() {
 
     skillLevels.forEach(level => {
         const levelWidth = level.getAttribute('data-level');
-        level.style.width = levelWidth + '%';
+        // Добавляем внутренний span, который будет отображать заполнение
+        const fill = document.createElement('span');
+        fill.className = 'skill-fill';
+        fill.style.width = '0%';
+        fill.style.height = '100%';
+        fill.style.backgroundColor = 'var(--primary-color)';
+        fill.style.position = 'absolute';
+        fill.style.top = '0';
+        fill.style.left = '0';
+        fill.style.borderRadius = '4px';
+        fill.style.transition = 'width 1.5s ease';
+        level.appendChild(fill);
+
+        // Анимируем через таймер, чтобы триггернуть рендеринг
+        setTimeout(() => {
+            fill.style.width = levelWidth + '%';
+        }, 100);
     });
 }
 

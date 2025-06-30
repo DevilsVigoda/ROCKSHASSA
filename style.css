@@ -772,3 +772,21 @@ body {
         font-size: 1.4rem;
     }
 }
+
+.skill-level {
+    position: relative;
+    background-color: rgba(0, 255, 65, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 8px;
+}
+
+.skill-fill {
+    content: '';
+    display: block;
+    height: 100%;
+    width: 0;
+    background-color: var(--primary-color);
+    border-radius: 4px;
+    transition: width 1.5s ease;
+}
